@@ -1,0 +1,20 @@
+
+import java.util.List;
+/**
+ * author : Yixin Luo
+ * 
+ * abstract to url's list
+ * **/
+public abstract class UrlList {
+	protected List<String> urlList;
+
+	public UrlList(List<String> ul) {
+		this.urlList = ul;
+	}
+	public UrlList() {
+		// TODO Auto-generated constructor stub
+	}
+	public List<String> getUrlList() {
+		return this.urlList;
+	}
+}
