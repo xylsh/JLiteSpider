@@ -114,7 +114,7 @@ Spider.create() //创建实例
 ```
 
 以豆瓣电影的页面为例子：  
-重写UrlList，`DoubanUrlList.java`：
+实现UrlList接口，`DoubanUrlList.java`：
 
 ```java
 /**
@@ -138,7 +138,7 @@ public class DoubanUrlList implements UrlList{
 }
 ```
 
-重写Processor，`DoubanProcessor.java`:
+实现Processor接口，`DoubanProcessor.java`:
 
 ```java
 public class DoubanProcessor implements Processor {
@@ -182,7 +182,7 @@ public class DoubanMain {
 
 ###默认的接口实现
 
->由于JLiteSpider是一个爬虫接口，所以她并没有提供类似其他爬虫框架那样的，很强大的功能实现，而是需要用户的深度定制。
+>由于JLiteSpider是一个爬虫接口，所以她并没有提供类似其他爬虫框架那样的，很强大的功能实现，而是需要用户的深度定制，实现对应接口的功能。
 
 * 关于自带的下载器`DefaultDownloader`的实现，他提供了不少的自定义设置。  
 
@@ -225,3 +225,4 @@ public class PrintSaver implements Saver {
 * Q: 我觉得你对于爬虫任务的接口的抽象做得太烂了，有更好的实现。
 
 > A: 确实如此，我只是一个新手而已，我渴望能从您那听到更好的解决方案。欢迎提ISSUE。
+
