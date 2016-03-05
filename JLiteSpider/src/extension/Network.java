@@ -3,11 +3,16 @@ package extension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * author: Yixin Luo
@@ -16,18 +21,25 @@ import org.apache.http.client.fluent.Request;
  * 简单的对请求的url操作进行封装，
  * 返回对应的html字符串
  * 
- * note : 具体的请求参数不会向外暴露接口
  * **/
 
 public class Network {
-	private static final String AGENT= "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) "
-			+ "AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31";
-	/*请求的url或url队列*/
+	/*请求的url或url链表*/
 	private String url = "";
 	private List<String> urls = new ArrayList<String>();
-	/*返回的结果字符串*/
+	/*返回的结果字符串或链表*/
 	private String result = "";
 	private List<String> results = new ArrayList<String>();
+	/*user agent*/
+	private String agent = null;
+	/*设置cookie*/
+	private String cookie = null;
+	/*传输超时*/
+	private int timeout = 1000;
+	/*设置代理*/
+	private String proxy = null;
+	/*线程池的线程数目*/
+	private int threadPoolSize = 3;
 	
 	public static Network create() {
 		return new Network();
@@ -44,14 +56,43 @@ public class Network {
 		return this;
 	}
 	/**
+	 * 设置下载传输参数
+	 * **/
+	public Network setUserAgent(String s) {
+		this.agent = s;
+		return this;
+	}
+	public Network setCookie(String c) {
+		this.cookie = c;
+		return this;
+	}
+	public Network setTimeout(int t) {
+		this.timeout = t;
+		return this;
+	}
+	public Network setProxy(String p) {
+		this.proxy = p;
+		return this;
+	}
+	public Network setThreadPoolSize(int size) {
+		this.threadPoolSize = size;
+		return this;
+	}
+	/**
 	 * 下载，并返回string
 	 * **/
 	private String downloader(String url) {
 		String res = "";
 		try {
-			res = Request.Get(url).userAgent(this.AGENT)
-					.connectTimeout(10000).execute().returnContent()
-					.asString();
+			Request rq = Request.Get(url).connectTimeout(this.timeout);
+			if (this.agent != null)
+				rq = rq.userAgent(this.agent);
+			if (this.cookie != null)
+				rq = rq.addHeader("Cookie", this.cookie);
+			if (this.proxy != null)
+				rq = rq.viaProxy(this.proxy);
+			res = rq.execute().returnContent().asString();
+			
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,7 +115,7 @@ public class Network {
 			 * 这里使用定长为3的线程池
 			 * */
 			final Network tmp = this;
-			ExecutorService pool = Executors.newFixedThreadPool(3);
+			ExecutorService pool = Executors.newFixedThreadPool(this.threadPoolSize);
 			for (String each : urls) {
 				final String tmpeach = each;
 				pool.execute(new Runnable() {
