@@ -13,7 +13,7 @@
 
 >使用maven：  
 
-```
+```xml
 <dependency>
   <groupId>com.JLiteSpider</groupId>
   <artifactId>JLiteSpider</artifactId>
@@ -27,15 +27,15 @@
 
 ###设计
 
-JLiteSpider将整个的爬虫抓取流程抽象成四个部分。  
+JLiteSpider将整个的爬虫抓取流程抽象成四个部分，由四个接口来定义。  
 
-* UrlList:
+#### 1. UrlList:
 
 >用来生成想要抓取的url字符串链表。url链表可以由用户进行初始设定，或者由外部传入。
 
 这部分的接口设计如下：  
 
-```
+```java
 public interface UrlList {
 	/**
 	 * 返回你想要抓取的url链表
@@ -46,13 +46,13 @@ public interface UrlList {
 
 你所需要做的是，实现这个接口，并将想要抓取的url链表返回。具体的实现细节，可以由你高度定制。  
 
-* Downloader:
+#### 2. Downloader:
 
 >这部分实现的是页面下载的任务，将想要抓取的url链表，转化（下载后存储）为相应的页面数据链表。
 
 接口设计如下：
 
-```
+```java
 public interface Downloader {
 	/**
 	 * 这个函数将url链表中对应的网页下载，然后将结果保存到字符串链表中，返回
@@ -64,6 +64,119 @@ public interface Downloader {
 你同样可以实现这个接口，具体的实现可由你自由定制，只要实现`download`函数，实现将`urlList`转化为返回页面的链表的过程。  
 当然，我在这里提供了一个简单的线程池下载器`DefaultDownloader`的实现（好让JListSpider看起来不是那么的无用;-)）。具体的`DefaultDownloader`使用方法在后面会讲，不过我还是强烈推荐你能自己实现下载器，这样才能满足更个性化的需求，当然也是JListSpider设计的初衷（只是一个接口）。
 
-* Saver:
+#### 3. Saver:
 
->`Saver`用来
+>`Saver`实现的是数据持久化的任务，讲你解析后得到的数据存入数据库，文件等等。
+
+接口的设计：
+
+```java
+public interface Saver {
+	/**
+	 * 将传入此函数的key和value进行持久化操作。
+	 * **/
+	public void save(String key, Object value);
+}
+```
+
+通过实现这个接口，可以讲传过来的key和value进行持久化操作。当然，是要持久化到数据库还是文件？是单线程还是线程池操作？这些都需要由你自己来定义。我在`extension/`中实现了一个打印操作的`PrintSaver`类，将`key`和`value`输出到屏幕。  
+
+#### 4. Processor:
+
+>`Processor`是解析器的接口，这里会从网页的原始文件中提取出有用的信息，并使用`Saver`持久化。
+
+接口设计：
+
+```java
+public interface Processor {
+	/**
+	 * pages是传入的要进行解析的文本链表，
+	 * 使用saver对象的save(String key, Object value)来完成提取得到的数据的持久化操作
+	 * **/
+	public void process(List<String> pages, Saver saver);
+}
+```
+
+其中`process(List<String> pages, Saver saver)`中的`pages`保存的是原始的网页数据链表，`saver`则是你自定义的数据持久化操作。你所需要做的是，重写这个接口，并定义解析规则，从`pages`中获取需要的信息，并使用`saver`进行持久化操作。我在JLiteSpider的包中依赖了`JSOUP`包，希望对你有用。  
+
+###使用方法
+
+JLiteSpider使用：
+
+```java
+Spider.create() //创建实例
+      .setUrlList(...) //设置实现了UrlList接口的Url生成器
+      .setDownloader(...) //设置实现了Downloader接口的下载器
+      .setProcessor(...) //设置实现了Processor接口的解析器
+      .setSaver(...) //设置实现了Saver接口的数据持久化方法
+      .begin(); //开始爬虫
+
+```
+
+以豆瓣电影的页面为例子：  
+重写UrlList，`DoubanUrlList.java`：
+
+```java
+/**
+ *  生成，要抓取的url链表
+ * 
+ * **/
+public class DoubanUrlList implements UrlList{
+
+	/**
+	 *   notice: 在这个函数中，新建要创建的url链表并返回
+	 * **/
+	public List<String> returnUrlList() {
+		// TODO Auto-generated method stub
+		List<String> urlList = new ArrayList<String>();
+		urlList.add("http://www.douban.com/tag/中国/movie");
+		urlList.add("http://www.douban.com/tag/中国/movie?start=15");
+		urlList.add("http://www.douban.com/tag/中国/movie?start=30");
+		return urlList;
+	}
+	
+}
+```
+
+重写Processor，`DoubanProcessor.java`:
+
+```java
+public class DoubanProcessor implements Processor {
+
+	public void process(List<String> pages, Saver saver) {
+		// 将返回的每一个网页中的电影名称和链接，提取出来，使用jsoup
+		// 最后使用saver做数据持久化
+		for (String each : pages) {
+			Document doc = Jsoup.parse(each);
+			Element ele = doc.body();
+			Elements es = ele.select("div#wrapper").select("div#content")
+					.select("div.clearfix").select("div.article")
+					.select("div.movie-list").select("dl");
+			for (int i = 0; i < es.size(); i++) {
+				saver.save("href", es.get(i).select("dt").select("a").attr("href"));
+				saver.save("title", es.get(i).select("dd").select("a").text());
+			}
+		}
+	}
+
+}
+```
+
+组装爬虫，`DoubanMain.java`:
+
+```java
+public class DoubanMain {
+	private static final String AGENT= "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) "
+			+ "AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31";
+	public static void main(String[] args) {
+		Spider.create().setUrlList(new DoubanUrlList())     //组装UrlList
+					   .setDownloader(new DefaultDownloader() //组装下载器
+							   .setThreadPoolSize(1)
+							   .setUserAgent(AGENT))
+					   .setProcessor(new DoubanProcessor())   //组装解析器
+					   .setSaver(new PrintSaver())            //组装数据持久化方法
+					   .begin();
+	}
+}
+```
+
