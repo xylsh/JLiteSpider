@@ -180,3 +180,48 @@ public class DoubanMain {
 }
 ```
 
+###默认的接口实现
+
+>由于JLiteSpider是一个爬虫接口，所以她并没有提供类似其他爬虫框架那样的，很强大的功能实现，而是需要用户的深度定制。
+
+* 关于自带的下载器`DefaultDownloader`的实现，他提供了不少的自定义设置。  
+
+```java
+setUserAgent(String s) //设置user agent
+setCookie(String c) //设置cookie
+setTimeout(int t) //设置连接超时时间
+setProxy(String p) //设置代理
+setThreadPoolSize(int size) //设置线程池的线程数目
+```
+
+看起来好像还可以？最好还是自己实现一个更好的吧！
+
+* 关于自带的`DefaultUrlList`实现，可以在构造函数中，将`List<String>`作为参数传入，实现url链表的初始化操作。
+
+```java
+public DefaultUrlList(List<String> u) {
+		this.urlList = u;
+	}
+```
+
+* 自带的`PrintSaver`功能非常简单，只是实现了输出到屏幕的功能。
+
+```java
+public class PrintSaver implements Saver {
+
+	public void save(String key, Object value) {
+		System.out.println(key+"->"+value);
+	}
+
+}
+```
+
+###其他
+
+* Q: 我需要从网页文件中解析出待抓取的url，然后将其加入下载队列，但是JLiteSpider并没有维护这样一个任务队列。
+
+> A: 解决方法是，你可以使用爬虫的嵌套，在获取到url的同时，开启新的爬虫任务，从而完成需求。
+
+* Q: 我觉得你对于爬虫任务的接口的抽象做得太烂了，有更好的实现。
+
+> A: 确实如此，我只是一个新手而已，我渴望能从您那听到更好的解决方案。欢迎提ISSUE。
