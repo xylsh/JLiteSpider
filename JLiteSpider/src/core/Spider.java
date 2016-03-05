@@ -38,7 +38,7 @@ public class Spider {
 	
 	/*开始下载和解析*/
 	public void begin() {
-		this.processor.process(this.downloader.download(this.urlList.getUrlList()), this.saver);
+		this.processor.process(this.downloader.download(this.urlList.returnUrlList()), this.saver);
 	}
 }
 
