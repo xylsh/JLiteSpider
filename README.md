@@ -23,7 +23,7 @@
 
 >直接下载jar包:  
 
-点击[下载](http://maven.oschina.net/index.html#nexus-search;quick~JLiteSpider)。  
+点击[下载](http://7xrlnt.com1.z0.glb.clouddn.com/JLiteSpider-1.1.jar)。  
 
 ###设计
 
