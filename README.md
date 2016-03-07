@@ -27,7 +27,7 @@
 
 ###设计
 
-JLiteSpider将整个的爬虫抓取流程抽象成四个部分，由四个接口来定义。  
+JLiteSpider将整个的爬虫抓取流程抽象成四个部分，由四个接口来定义。在1.2版中，加入了范型的用法，在各个接口中传递的数据类型可以自由定义，从而包含更多的信息，提高灵活度。 
 
 #### 1. UrlList:
 
@@ -36,11 +36,11 @@ JLiteSpider将整个的爬虫抓取流程抽象成四个部分，由四个接口
 这部分的接口设计如下：  
 
 ```java
-public interface UrlList {
+public interface UrlList<T> {
 	/**
 	 * 返回你想要抓取的url链表
 	 * **/
-	public List<String> returnUrlList();
+	public List<T> returnUrlList();
 }
 ```
 
@@ -53,11 +53,11 @@ public interface UrlList {
 接口设计如下：
 
 ```java
-public interface Downloader {
+public interface Downloader<D, R> {
 	/**
-	 * 这个函数将url链表中对应的网页下载，然后将结果保存到字符串链表中，返回
+	 * 这个函数将url链表中对应的网页下载，然后将结果保存到链表中，返回
 	 * **/
-	public List<String> download(List<String> urlList);
+	public List<R> download(List<D> urlList);
 }
 ```
 
@@ -71,11 +71,11 @@ public interface Downloader {
 接口的设计：
 
 ```java
-public interface Saver {
+public interface Saver<T> {
 	/**
 	 * 将传入此函数的key和value进行持久化操作。
 	 * **/
-	public void save(String key, Object value);
+	public void save(String key, T value);
 }
 ```
 
@@ -88,16 +88,16 @@ public interface Saver {
 接口设计：
 
 ```java
-public interface Processor {
+public interface Processor<T> {
 	/**
 	 * pages是传入的要进行解析的文本链表，
 	 * 使用saver对象的save(String key, Object value)来完成提取得到的数据的持久化操作
 	 * **/
-	public void process(List<String> pages, Saver saver);
+	public void process(List<T> pages, Saver saver);
 }
 ```
 
-其中`process(List<String> pages, Saver saver)`中的`pages`保存的是原始的网页数据链表，`saver`则是你自定义的数据持久化操作。你所需要做的是，重写这个接口，并定义解析规则，从`pages`中获取需要的信息，并使用`saver`进行持久化操作。我在JLiteSpider的包中依赖了`JSOUP`包，希望对你有用。  
+其中`process(List<T> pages, Saver saver)`中的`pages`保存的是原始的网页数据链表，`saver`则是你自定义的数据持久化操作。你所需要做的是，重写这个接口，并定义解析规则，从`pages`中获取需要的信息，并使用`saver`进行持久化操作。我在JLiteSpider的包中依赖了`JSOUP`包，希望对你有用。  
 
 ###使用方法
 
@@ -121,7 +121,7 @@ Spider.create() //创建实例
  *  生成，要抓取的url链表
  * 
  * **/
-public class DoubanUrlList implements UrlList{
+public class DoubanUrlList implements UrlList<String> {
 
 	/**
 	 *   notice: 在这个函数中，新建要创建的url链表并返回
@@ -141,7 +141,7 @@ public class DoubanUrlList implements UrlList{
 实现Processor接口，`DoubanProcessor.java`:
 
 ```java
-public class DoubanProcessor implements Processor {
+public class DoubanProcessor implements Processor<String> {
 
 	public void process(List<String> pages, Saver saver) {
 		// 将返回的每一个网页中的电影名称和链接，提取出来，使用jsoup
@@ -207,7 +207,7 @@ public DefaultUrlList(List<String> u) {
 * 自带的`PrintSaver`功能非常简单，只是实现了输出到屏幕的功能。
 
 ```java
-public class PrintSaver implements Saver {
+public class PrintSaver implements Saver<String> {
 
 	public void save(String key, Object value) {
 		System.out.println(key+"->"+value);

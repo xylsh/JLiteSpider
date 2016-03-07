@@ -9,7 +9,7 @@ import core.UrlList;
  *  生成，要抓取的url链表
  * 
  * **/
-public class DoubanUrlList implements UrlList{
+public class DoubanUrlList implements UrlList<String> {
 
 	/**
 	 *   notice: 在这个函数中，新建要创建的url链表并返回

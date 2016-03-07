@@ -9,7 +9,7 @@ import core.UrlList;
  * 
  * 简单UrlList的实现，用于接收外部直接输入的url链表
  * **/
-public class DefaultUrlList implements UrlList {
+public class DefaultUrlList implements UrlList<String> {
 	private List<String> urlList;
 	
 	public DefaultUrlList(List<String> u) {

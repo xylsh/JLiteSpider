@@ -8,9 +8,9 @@ import core.Saver;
  * 对保存接口的实现，将结果打印出来
  * 
  * **/
-public class PrintSaver implements Saver {
+public class PrintSaver implements Saver<String> {
 
-	public void save(String key, Object value) {
+	public void save(String key, String value) {
 		System.out.println(key+"->"+value);
 	}
 

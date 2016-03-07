@@ -10,7 +10,7 @@ import org.jsoup.select.Elements;
 import core.Processor;
 import core.Saver;
 
-public class DoubanProcessor implements Processor {
+public class DoubanProcessor implements Processor<String> {
 
 	public void process(List<String> pages, Saver saver) {
 		// TODO Auto-generated method stub

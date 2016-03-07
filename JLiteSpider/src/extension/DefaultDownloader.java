@@ -10,7 +10,7 @@ import core.Downloader;
  * 下载器，其中download函数应当返回获取到的html页面字符串的链表
  * 
  * **/
-public class DefaultDownloader implements Downloader {
+public class DefaultDownloader implements Downloader<String, String> {
 	/*user agent*/
 	private String agent = null;
 	/*设置cookie*/

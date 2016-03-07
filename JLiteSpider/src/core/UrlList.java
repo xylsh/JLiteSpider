@@ -6,9 +6,9 @@ import java.util.List;
  * 2016/3/4
  * 对于要抓取的url链表的接口
  * **/
-public interface UrlList {
+public interface UrlList<T> {
 	/**
 	 * 返回你想要抓取的url链表
 	 * **/
-	public List<String> returnUrlList();
+	public List<T> returnUrlList();
 }
