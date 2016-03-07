@@ -17,13 +17,13 @@
 <dependency>
   <groupId>com.JLiteSpider</groupId>
   <artifactId>JLiteSpider</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
 </dependency>
 ```
 
 >直接下载jar包:  
 
-点击[下载](http://7xrlnt.com1.z0.glb.clouddn.com/JLiteSpider-1.1.jar)。  
+点击[下载](http://7xrlnt.com1.z0.glb.clouddn.com/JLiteSpider-1.2.jar)。  
 
 ###设计
 
