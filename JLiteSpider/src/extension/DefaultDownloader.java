@@ -1,5 +1,6 @@
 package extension;
 
+import java.util.Iterator;
 import java.util.List;
 
 import core.Downloader;
@@ -48,8 +49,8 @@ public class DefaultDownloader implements Downloader<String, String> {
 	/**
 	 * 使用UrlList对象中的url，开始下载
 	 * **/
-	public List<String> download(List<String> urlList) {
-		Network nw = Network.create().setUrlList(urlList);
+	public Iterator<String> download(Iterator<String> urls) {
+		Network nw = Network.create().setUrlIterator(urls);
 		if (this.agent != null)
 			nw.setUserAgent(this.agent);
 		if (this.cookie != null)
@@ -59,6 +60,7 @@ public class DefaultDownloader implements Downloader<String, String> {
 		
 		return nw.setTimeout(this.timeout)
 				.setThreadPoolSize(this.threadPoolSize)
-				.begin().toStringList();
+				.begin()
+				.getResults();
 	}
 }

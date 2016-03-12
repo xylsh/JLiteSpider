@@ -4,16 +4,23 @@ import core.Spider;
 import extension.DefaultDownloader;
 import extension.PrintSaver;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 public class DoubanMain {
-	private static final String AGENT= "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) "
-			+ "AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31";
-	public static void main(String[] args) {
-		Spider.create().setUrlList(new DoubanUrlList())
-					   .setDownloader(new DefaultDownloader()
-							   .setThreadPoolSize(1)
-							   .setUserAgent(AGENT))
-					   .setProcessor(new DoubanProcessor())
-					   .setSaver(new PrintSaver())
-					   .begin();
-	}
+    private static final String AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) "
+            + "AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31";
+
+    public static void main(String[] args) {
+        Spider.create()
+//                .setUrlList(new DoubanUrlList())
+                .setUrlSource(new DoubanUrlSource())
+                .setDownloader(new DefaultDownloader()
+                        .setThreadPoolSize(1)
+                        .setUserAgent(AGENT))
+                .setProcessor(new DoubanProcessor())
+                .setSaver(new PrintSaver())
+                .begin();
+    }
 }

@@ -1,4 +1,7 @@
 package core;
+
+import java.util.Iterator;
+
 /**
  * author : Yixin Luo
  * 2016/3/4
@@ -8,6 +11,7 @@ package core;
 public interface Saver<T> {
 	/**
 	 * 将传入此函数的key和value进行持久化操作。
-	 * **/
-	public void save(String key, T value);
+	 *
+	 */
+	void save(Iterator<T> entryIterator);
 }

@@ -1,5 +1,7 @@
 package core;
 
+import java.util.Objects;
+
 /**
  * author:Yixin Luo
  * 2016/3/3
@@ -10,14 +12,17 @@ public class Spider {
 	private Downloader downloader;
 	private Processor processor;
 	private Saver saver;
-	private UrlList urlList;
+//	private UrlList urlList;
+	private UrlSource urlSource;
 	
 	public static Spider create() {
 		return new Spider();
 	}
 	
-	public Spider setUrlList(UrlList u) {
-		this.urlList = u;
+	public Spider setUrlSource(UrlSource urlSource) {
+		Objects.requireNonNull(urlSource);
+
+		this.urlSource = urlSource;
 		return this;
 	}
 	
@@ -38,7 +43,10 @@ public class Spider {
 	
 	/*开始下载和解析*/
 	public void begin() {
-		this.processor.process(this.downloader.download(this.urlList.returnUrlList()), this.saver);
+		processor.process(
+				downloader.download(this.urlSource.iterator()),
+				saver
+		);
 	}
 }
 
