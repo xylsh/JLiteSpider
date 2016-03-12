@@ -1,16 +1,11 @@
 package extension;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
-import core.AbstractSaver;
-import org.apache.http.Header;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
+import core.IteratorAdaptor;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import util.IteratorUtils;
 
 /**
  * author: Yixin Luo
@@ -19,7 +14,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * 简单的对请求的url操作进行封装，
  * 返回对应的html字符串
  **/
-
 public class Network {
     private Iterator<String> urlIterator;
     private Iterator<String> results;
@@ -41,16 +35,16 @@ public class Network {
     /**
      * 设置要请求的url
      */
-//	public Network setUrl(String url) {
-    //todo:通过适配器转化成iterator
-//		this.url = url;
-//		return this;
-//	}
-//	public Network setUrlList(List<String> urls) {
-    //todo:通过适配器转化成iterator
-//		this.urls = urls;
-//		return this;
-//	}
+    public Network setUrl(String url) {
+        urlIterator = Arrays.asList(url).iterator();
+        return this;
+    }
+
+    public Network setUrlList(List<String> urls) {
+        urlIterator = urls.iterator();
+        return this;
+    }
+
     public Network setUrlIterator(Iterator<String> urlIterator) {
         this.urlIterator = urlIterator;
         return this;
@@ -87,7 +81,7 @@ public class Network {
     /**
      * 下载，并返回string
      **/
-    private String downloader(String url) {
+    private String download(String url) {
         String res = "";
         try {
             Request rq = Request.Get(url).connectTimeout(this.timeout);
@@ -99,9 +93,7 @@ public class Network {
                 rq = rq.viaProxy(this.proxy);
             res = rq.execute().returnContent().asString();
 
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return res;
@@ -110,43 +102,33 @@ public class Network {
     /**
      * 开始
      **/
+    @SuppressWarnings("unchecked")
     public Network begin() {
         Objects.requireNonNull(urlIterator);
 
         final ExecutorService pool = Executors.newFixedThreadPool(this.threadPoolSize);
+        results = IteratorAdaptor.<String>create()
+                .setHasNext(() -> urlIterator.hasNext())
+                .setCheck(() -> IteratorUtils.isEmpty(urlIterator))
+                .setNext(() -> {
+                    final String currUrl = urlIterator.next();
+                    Future<String> future = pool.submit(() -> download(currUrl));
 
-        results = new Iterator<String>() {
-            public boolean hasNext() {
-                return urlIterator.hasNext();
-            }
-
-            public String next() {
-                check();
-
-                final String currUrl = urlIterator.next();
-                Future<String> future = pool.submit(() -> downloader(currUrl));
-
-                try {
-                    return future.get();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "<Error:" + e.getMessage() + ">";
-                } finally {
-                    if( !urlIterator.hasNext() ){
-                        pool.shutdown();
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return "<Error:" + e.getMessage() + ">";
+                    } finally {
+                        if (!urlIterator.hasNext()) {
+                            pool.shutdown();
+                        }
                     }
-                }
-            }
-
-            private void check() {
-                if( urlIterator == null || !urlIterator.hasNext() ){
-                    throw new NoSuchElementException();
-                }
-            }
-        };
+                });
 
         return this;
     }
+
 
     public Iterator<String> getResults() {
         return results;
@@ -155,14 +137,13 @@ public class Network {
     /*test unit*/
     public static void main(String[] args) {
         List<String> list = new ArrayList<String>();
-        List<String> res = new ArrayList<String>();
         list.add("http://so.tv.sohu.com/list_p1100_p2_p3_p4_p5_p6_p73_p8_p91_p102_p11_p125_p13.html");
         list.add("http://so.tv.sohu.com/list_p1100_p2_p3_p4_p5_p6_p73_p8_p91_p103_p11_p125_p13.html");
         list.add("http://so.tv.sohu.com/list_p1100_p2_p3_p4_p5_p6_p73_p8_p91_p104_p11_p125_p13.html");
         list.add("http://so.tv.sohu.com/list_p1100_p2_p3_p4_p5_p6_p73_p8_p91_p105_p11_p125_p13.html");
-//		res = Network.create().setUrlList(list)
-//		.begin().toStringList();
-//		System.out.println(res.get(0));
+
+        System.out.println(Network.create().setUrlList(list)
+                .begin().getResults());
     }
 
 }

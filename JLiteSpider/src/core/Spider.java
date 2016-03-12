@@ -12,7 +12,6 @@ public class Spider {
 	private Downloader downloader;
 	private Processor processor;
 	private Saver saver;
-//	private UrlList urlList;
 	private UrlSource urlSource;
 	
 	public static Spider create() {
@@ -44,7 +43,7 @@ public class Spider {
 	/*开始下载和解析*/
 	public void begin() {
 		processor.process(
-				downloader.download(this.urlSource.iterator()),
+				downloader.download(urlSource.iterator()),
 				saver
 		);
 	}

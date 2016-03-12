@@ -3,7 +3,7 @@ package core;
 import java.util.Iterator;
 
 /**
- * Created by apple on 16/3/12.
+ * url来源
  */
 public interface UrlSource {
 
