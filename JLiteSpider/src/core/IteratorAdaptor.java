@@ -25,7 +25,7 @@ public class IteratorAdaptor<T> implements Iterator<T> {
     }
 
     public void check() {
-        if(!checkSupplier.get()){
+        if (checkSupplier.get()) {
             throw new NoSuchElementException();
         }
     }

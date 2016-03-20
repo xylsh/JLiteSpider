@@ -12,7 +12,6 @@ import java.util.Objects;
  * <p>
  * 对保存接口的实现，将结果打印出来
  **/
-//public class PrintSaver implements Saver<String> {
 public class PrintSaver extends AbstractSaver<String> {
 
     public void doSave(Iterator<String> entryIterator) {

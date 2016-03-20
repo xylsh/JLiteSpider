@@ -7,6 +7,9 @@ import java.util.Iterator;
  */
 public interface UrlSource {
 
+    /**
+     * url迭代器
+     */
     Iterator<String> iterator();
 
 }

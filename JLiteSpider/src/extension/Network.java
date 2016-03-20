@@ -2,6 +2,7 @@ package extension;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 import core.ErrorProcessor;
 import core.IteratorAdaptor;
@@ -115,7 +116,14 @@ public class Network {
 
         final ExecutorService pool = Executors.newFixedThreadPool(this.threadPoolSize);
         results = IteratorAdaptor.<String>create()
-                .setHasNext(() -> urlIterator.hasNext())
+//                .setHasNext(() -> urlIterator.hasNext())
+                .setHasNext(new Supplier<Boolean>() {
+                    @Override
+                    public Boolean get() {
+                        boolean tmp = urlIterator.hasNext();
+                        return tmp;
+                    }
+                })
                 .setCheck(() -> IteratorUtils.isEmpty(urlIterator))
                 .setNext(() -> {
                     final String currUrl = urlIterator.next();
@@ -125,7 +133,7 @@ public class Network {
                         return future.get();
                     } catch (Exception e) {
                         errorProcessor.onException(currUrl, e);
-                        return "<Error: url:" + currUrl + "message:" + e.getMessage() + ">";
+                        return "<Error: url:" + currUrl + ", message:" + e.getMessage() + ">";
                     } finally {
                         if (!urlIterator.hasNext()) {
                             pool.shutdown();

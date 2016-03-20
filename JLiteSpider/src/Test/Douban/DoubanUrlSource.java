@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by apple on 16/3/12.
- */
+
 public class DoubanUrlSource implements UrlSource {
 
     public Iterator<String> iterator() {

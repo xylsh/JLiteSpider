@@ -46,7 +46,9 @@ public class Spider {
         return this;
     }
 
-    /*开始下载和解析*/
+    /**
+     * 开始下载和解析
+     */
     public void begin() {
         processor.process(
                 downloader.download(urlSource.iterator()),

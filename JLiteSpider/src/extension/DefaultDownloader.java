@@ -12,16 +12,29 @@ import core.ErrorProcessor;
  * 下载器，其中download函数应当返回获取到的html页面字符串的链表
  **/
 public class DefaultDownloader implements Downloader<String, String> {
-    /*user agent*/
+    /**
+     * user agent
+     */
     private String agent = null;
-    /*设置cookie*/
+    /**
+     * 设置cookie
+     */
     private String cookie = null;
-    /*传输超时*/
+    /**
+     * 传输超时
+     */
     private int timeout = 1000;
-    /*设置代理*/
+    /**
+     * 设置代理
+     */
     private String proxy = null;
-    /*线程池的线程数目*/
+    /**
+     * 线程池的线程数目
+     */
     private int threadPoolSize = 3;
+    /**
+     * 错误处理
+     */
     private ErrorProcessor errorProcessor;
 
     /**
