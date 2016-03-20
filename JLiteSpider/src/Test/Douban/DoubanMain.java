@@ -14,7 +14,6 @@ public class DoubanMain {
 
     public static void main(String[] args) {
         Spider.create()
-//                .setUrlList(new DoubanUrlList())
                 .setUrlSource(new DoubanUrlSource())
                 .setDownloader(new DefaultDownloader()
                         .setThreadPoolSize(1)

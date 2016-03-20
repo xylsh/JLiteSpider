@@ -3,6 +3,7 @@ package extension;
 import java.util.*;
 import java.util.concurrent.*;
 
+import core.ErrorProcessor;
 import core.IteratorAdaptor;
 import org.apache.http.client.fluent.Request;
 import util.IteratorUtils;
@@ -27,6 +28,7 @@ public class Network {
     private String proxy = null;
     /*线程池的线程数目*/
     private int threadPoolSize = 3;
+    private ErrorProcessor errorProcessor;
 
     public static Network create() {
         return new Network();
@@ -78,6 +80,11 @@ public class Network {
         return this;
     }
 
+    public Network setErrorProcessor(ErrorProcessor errorProcessor) {
+        this.errorProcessor = errorProcessor;
+        return this;
+    }
+
     /**
      * 下载，并返回string
      **/
@@ -94,7 +101,7 @@ public class Network {
             res = rq.execute().returnContent().asString();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            errorProcessor.onException(url, e);
         }
         return res;
     }
@@ -117,8 +124,8 @@ public class Network {
                     try {
                         return future.get();
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        return "<Error:" + e.getMessage() + ">";
+                        errorProcessor.onException(currUrl, e);
+                        return "<Error: url:" + currUrl + "message:" + e.getMessage() + ">";
                     } finally {
                         if (!urlIterator.hasNext()) {
                             pool.shutdown();

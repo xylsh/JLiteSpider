@@ -3,7 +3,7 @@ package core;
 import java.util.Iterator;
 
 /**
- * Created by apple on 16/3/12.
+ * 存储爬取处理后的信息
  */
 public abstract class AbstractSaver<T> implements Saver<T> {
 
